@@ -31,6 +31,8 @@ pub async fn register(payload: Bytes) -> Response {
     // decode what is hopefully MessagePack payload
     match decode::from_slice::<RegisterRequest>(&payload) {
         Ok(reg_req) => {
+            tracing::debug!(name: "Register Request", email = reg_req.email, password = reg_req.password);
+
             // validate email & pass
             if !EMAIL_VALID.is_match(&reg_req.email) || !validate_password(&reg_req.password) {
                 return (StatusCode::BAD_REQUEST, "Invalid email or password format")
