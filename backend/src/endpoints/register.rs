@@ -15,9 +15,38 @@ struct RegisterRequest {
     password: String,
 }
 
+/// Validates passwords in register requests.
+///
+/// A valid password:
+/// - is between 12-20 characters
+/// - contains at least one special character
+/// - contains at least one number
 fn validate_password(pass: &str) -> bool {
-    // TODO: add more validation later
-    pass.len() >= 8
+    const ALLOWED_SPECIALS: [char; 30] = [
+        '@', '#', '!', '?', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[',
+        ']', '|', '\\', ':', ';', '<', '>', ',', '.', '/', '~', '`',
+    ];
+
+    let mut chars = pass.chars();
+    let mut special: bool = false;
+    let mut number: bool = false;
+
+    while !special
+        && !number
+        && let Some(c) = chars.next()
+    {
+        if c.is_alphabetic() {
+            continue; // maybe check for uppercase in future?
+        } else if c.is_numeric() {
+            number = true; // found at least 1 number
+        } else if ALLOWED_SPECIALS.contains(&c) {
+            special = true; // found at least 1 special character
+        } else {
+            return false;
+        }
+    }
+
+    pass.len() >= 12 && pass.len() <= 20 && special && number
 }
 
 static EMAIL_VALID: LazyLock<Regex> = LazyLock::new(|| {
